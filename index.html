@@ -157,5 +157,12 @@ a.onerror=function(){
 if(cur&&retry<2){retry++;$('ps').textContent='Reconnexion…';var u=cur.url;setTimeout(function(){if(cur&&cur.url===u){a.src=u;a.play().catch(function(){})}},1500);return}
 $('ps').textContent='Station indisponible, essaie une autre';$('pb').textContent='▶'};
 if('serviceWorker' in navigator)window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js')});
+function recon(){if(!cur||a.paused&&!retry)return;retry++;$('ps').textContent='Reconnexion…';var u=cur.url,d=Math.min(1500*retry,10000);setTimeout(function(){if(cur&&cur.url===u){a.src=u;a.play().catch(function(){})}},d)}
+a.onerror=recon;
+a.onended=recon;
+a.onstalled=function(){if(!a.paused)recon()};
+window.addEventListener('online',function(){if(cur&&!a.paused)recon()});
+a.addEventListener('playing',function(){if('mediaSession' in navigator)navigator.mediaSession.playbackState='playing'});
+a.addEventListener('pause',function(){if('mediaSession' in navigator)navigator.mediaSession.playbackState='paused'});
 load();
 </script></body></html>
