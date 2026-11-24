@@ -1,4 +1,4 @@
-var V='riamo-v2';
+var V='riamo-v5';
 var S=['/','/index.html','/manifest.json','/icon-192.png','/icon-512.png'];
 self.addEventListener('install',function(e){
   e.waitUntil(caches.open(V).then(function(c){return c.addAll(S)}).then(function(){return self.skipWaiting()}));

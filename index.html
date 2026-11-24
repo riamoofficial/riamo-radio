@@ -164,5 +164,16 @@ a.onstalled=function(){if(!a.paused)recon()};
 window.addEventListener('online',function(){if(cur&&!a.paused)recon()});
 a.addEventListener('playing',function(){if('mediaSession' in navigator)navigator.mediaSession.playbackState='playing'});
 a.addEventListener('pause',function(){if('mediaSession' in navigator)navigator.mediaSession.playbackState='paused'});
+var want=false,_pl=a.play.bind(a),_pa=a.pause.bind(a),lastT=0,stuck=0;
+a.play=function(){want=true;return _pl()};
+a.pause=function(){want=false;_pa()};
+function fresh(){if(!cur)return;var u=cur.url;a.src=u+(u.indexOf('?')>0?'&':'?')+'t='+Date.now();_pl().catch(function(){})}
+setInterval(function(){if(!want||!cur)return;if(a.paused){_pl().catch(function(){fresh()});return}if(a.currentTime===lastT){if(++stuck>=3){stuck=0;fresh()}}else{stuck=0}lastT=a.currentTime},5000);
+document.addEventListener('visibilitychange',function(){if(!document.hidden&&want&&a.paused)_pl().catch(function(){})});
+(function(){var t=0,done=false;
+function go(){if(done||!cur)return;if(!a.src)a.src=cur.url;a.play().then(function(){done=true}).catch(function(){})}
+var iv=setInterval(function(){if(done||++t>20){clearInterval(iv);return}go()},500);
+['click','touchend'].forEach(function(ev){document.addEventListener(ev,function(){if(!done)go()},{once:true})});
+})();
 load();
 </script></body></html>
